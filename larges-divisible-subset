@@ -1,0 +1,32 @@
+class Solution {
+public:   
+    // elapsed time: 111 mins
+    // ANSWER READ
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0 || n == 1) return nums;
+        
+        sort(nums.begin(), nums.end());
+        
+        vector<int> dp(n, 1);
+        
+        int mxLen = 0;
+        for (int i = 0; i < n; ++i) { // O(n^2)
+            int mxForMe = 0;
+            for (int j = i-1; j >= 0; --j) {
+                if (nums[i] % nums[j] == 0 && dp[j] > mxForMe) mxForMe = dp[j];
+            }
+            dp[i] = mxForMe + 1;
+            mxLen = max(mxLen, dp[i]);
+        }
+        
+        vector<int> result;
+        for (int i = n-1; i >= 0; --i) {
+            if (dp[i] == mxLen && (result.empty() || result.back() % nums[i] == 0)) {
+                result.push_back(nums[i]);
+                --mxLen;
+            }
+        }
+        return result;
+    }
+};
