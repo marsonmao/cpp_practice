@@ -1,0 +1,24 @@
+class Solution {
+public:    
+    // ANSWER READ
+    // this is Bellman Ford algorithm
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K) {
+        vector<int> prev_cost(n, -1);
+        prev_cost[src] = 0;
+
+        // must copy cost, because every new relaxation is based on previous round
+        for (int i = 0; i <= K; ++i) { // K+1 turn of relaxation
+            vector<int> cost = prev_cost; // copy
+            for (const auto& f : flights) { // test edges
+                int from = f[0], to = f[1], price = f[2];
+                if (prev_cost[from] == -1) continue; // next relaxation
+                
+                if (cost[to] == -1 || prev_cost[from] + price < cost[to]) {
+                    cost[to] = prev_cost[from] + price;
+                }
+            }
+            prev_cost = cost;
+        }
+        return prev_cost[dst];
+    }
+};
