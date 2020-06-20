@@ -1,0 +1,43 @@
+class Solution { // elapsed time: ?
+public:
+    int strStr(string haystack, string needle) {
+        if (needle.empty()) return 0;
+        if (haystack.empty()) return -1;
+        
+        vector<int> ff(needle.size(), 0); // KMP fallback function
+        // note i == 1
+        for (int j = 0, i = 1; i < needle.size(); ++i) {
+            if (needle[j] == needle[i]) {
+                ff[i] = j+1;
+                ++j;
+            } else if (j > 0) {
+                // j fails, so check j-1, tell me where to compare next
+                j = ff[j-1];
+                // keep at current i, need to compare again
+                --i;
+            }
+        }
+        
+        int N = 0;
+        bool found = false;
+        for (int h = 0, hz = haystack.size(); h < hz; ++h) {
+            if (haystack[h] != needle[N]) {
+                if (N != 0) {
+                    // revert N to?
+                    int nextCompare = ff[N-1];
+                    N = nextCompare;
+                    --h; // hold h
+                }
+            } else {
+                ++N;
+                if (N == needle.size()) {
+                    found = true;
+                    N = h-N+1;
+                    break;
+                }
+            }
+        }
+        if (found) return N;
+        else return -1;
+    }
+};
