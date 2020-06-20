@@ -1,0 +1,60 @@
+class Solution { // elapsed time: 93m
+public:
+    template <typename T>
+    string parse(
+        const string& IP,
+        char invalidChar,
+        char splitter,
+        int maxCount,
+        T validator,
+        const string& answer
+    ) {
+        if (IP.find_first_of(invalidChar) != string::npos) return "Neither";
+
+        for (size_t st = 0, split = 0, n = IP.size(); split != string::npos; ) {
+            if (0 == maxCount) return "Neither";
+            
+            split = IP.find_first_of(splitter, st);
+            string t = IP.substr(st, min(n, split)-st); // maybe here no need substr, just pass st&en
+            if (!validator(t)) return "Neither";
+
+            st = split+1;
+            --maxCount;
+        }
+        return (0 == maxCount) ? answer : "Neither";
+    }
+    
+    string parseV4(const string& IP) {
+        return parse(IP, ':', '.', 4, [](const string& t){ // if pass st&en, validator could bind &IP
+            if (t.size() == 0 || (t.size() > 1 && t[0] == '0')) return false;
+            for (int i = 0, n = t.size(), a = 0; i < n; ++i) {
+                a *= 10;
+                int d = t[i] - '0';
+                if (d > 9) return false; // no special char so d wont be < 0
+                a += d;
+                if (a > 255) return false;
+            }
+            return true;
+        }, "IPv4");
+    }
+    
+    string parseV6(const string& IP) {
+        return parse(IP, '.', ':', 8, [](const string& t){
+            if (t.size() < 1 || t.size() > 4) return false;
+            for (int i = 0, n = t.size(), a = 0; i < n; ++i) {
+                char c = t[i];
+                if (!((c >= '0' && c <= '9')
+                    || (c >= 'a' && c <= 'f')
+                    || (c >= 'A' && c <= 'F')
+                )) return false;
+            }
+            return true;
+        }, "IPv6");
+    }
+    
+    string validIPAddress(string IP) {
+        if (IP.find_first_of('.') != string::npos) return parseV4(IP);
+        if (IP.find_first_of(':') != string::npos) return parseV6(IP);
+        return "Neither";
+    }
+};
